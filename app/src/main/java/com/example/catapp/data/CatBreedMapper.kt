@@ -6,7 +6,7 @@ import com.example.catapp.domain.model.CatBreed
 
 object CatBreedMapper {
 
-    private fun CatBreedDto.toCatBreed(): CatBreed {
+     fun CatBreedDto.toCatBreed(): CatBreed {
         val lifeSpanValue = parseLifeSpanHighestValue(lifeSpan)
 
         return CatBreed(
@@ -21,7 +21,7 @@ object CatBreedMapper {
         )
     }
 
-    private fun CatBreed.toCatBreedEntity(): CatBreedEntity {
+     fun CatBreed.toCatBreedEntity(): CatBreedEntity {
         return CatBreedEntity(
             id = id,
             name = name,
@@ -34,7 +34,7 @@ object CatBreedMapper {
         )
     }
 
-    private fun CatBreedEntity.toCatBreed(): CatBreed {
+     fun CatBreedEntity.toCatBreed(): CatBreed {
         return CatBreed(
             id = id,
             name = name,
@@ -51,7 +51,7 @@ object CatBreedMapper {
         return this.map { it.toCatBreed() }
     }
 
-    fun List<CatBreedEntity>.toCatBreedList(): List<CatBreed> {
+    fun List<CatBreedEntity>.toCatBreedListFromEntities(): List<CatBreed> {
         return this.map { it.toCatBreed() }
     }
 
