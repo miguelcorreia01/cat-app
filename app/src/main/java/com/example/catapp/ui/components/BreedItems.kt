@@ -1,5 +1,6 @@
 package com.example.catapp.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -67,13 +69,16 @@ fun BreedGridItem(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box {
-            AsyncImage(
-                model = breed.image,
-                contentDescription = breed.name,
-                modifier = Modifier
-                    .size(120.dp),
-                contentScale = ContentScale.Crop
-            )
+            if (breed.image?.isNotEmpty() == true) {
+                AsyncImage(
+                    model = breed.image,
+                    contentDescription = breed.name,
+                    modifier = Modifier.size(120.dp),
+                    contentScale = ContentScale.Crop,
+                )
+            } else {
+                PlaceholderImage()
+            }
 
             IconButton(
                 onClick = { onToggleFavorite() },
@@ -96,8 +101,38 @@ fun BreedGridItem(
             fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center,
             maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            color = Color.DarkGray
+            overflow = TextOverflow.Ellipsis
         )
+    }
+}
+
+@Composable
+fun PlaceholderImage() {
+    Box(
+        modifier = Modifier
+            .size(120.dp)
+            .background(
+                color = Color.LightGray.copy(alpha = 0.3f),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Default.Pets,
+                contentDescription = "No image available",
+                tint = Color.Gray,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "No Image",
+                color = Color.Gray,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
