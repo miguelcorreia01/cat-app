@@ -8,7 +8,7 @@ data class CatBreed (
     val origin: String,
     val lifeSpan: Int,
     val isFavorite: Boolean,
-    val image: String
+    val image: String? = null
 )
 
 

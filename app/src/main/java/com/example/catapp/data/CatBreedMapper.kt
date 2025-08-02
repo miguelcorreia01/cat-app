@@ -17,7 +17,7 @@ object CatBreedMapper {
             origin = origin,
             lifeSpan = lifeSpanValue,
             isFavorite = false,
-            image = ""
+            image = referenceImageId?.takeIf { it.isNotEmpty() }
         )
     }
 
