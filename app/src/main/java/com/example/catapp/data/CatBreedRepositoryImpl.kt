@@ -1,5 +1,6 @@
 package com.example.catapp.data
 
+import android.util.Log
 import com.example.catapp.data.CatBreedMapper.toCatBreed
 import com.example.catapp.data.CatBreedMapper.toCatBreedEntity
 import com.example.catapp.data.CatBreedMapper.toCatBreedEntityList
@@ -19,15 +20,31 @@ class CatBreedRepositoryImpl @Inject constructor(
     private val catBreedDao: CatBreedDao
 ) : CatBreedRepository {
 
+
+    private suspend fun getBreedImage(breed: CatBreed): CatBreed {
+        return try {
+            if (breed.image?.isNotEmpty() == true) {
+                val imageDto = apiService.getImageById(breed.image)
+                breed.copy(image = imageDto.url)
+            } else {
+                breed
+            }
+        } catch (e: Exception) {
+            breed
+        }
+    }
+
     override suspend fun getCatBreeds(): List<CatBreed> {
         return try {
             val apiBreeds = apiService.getCatBreeds()
             val domainBreeds = apiBreeds.toCatBreedList()
 
-            val entities = domainBreeds.toCatBreedEntityList()
+            val breedsWithImages = domainBreeds.map { breed ->
+                getBreedImage(breed)
+            }
+            val entities = breedsWithImages.toCatBreedEntityList()
             catBreedDao.insertCatBreeds(entities)
-
-            domainBreeds
+            breedsWithImages
         } catch (e: Exception) {
             val localEntities = catBreedDao.getAllCatBreeds()
             localEntities.toCatBreedListFromEntities()
