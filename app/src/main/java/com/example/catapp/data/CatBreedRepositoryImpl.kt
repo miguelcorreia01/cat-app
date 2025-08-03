@@ -1,6 +1,5 @@
 package com.example.catapp.data
 
-import android.util.Log
 import com.example.catapp.data.CatBreedMapper.toCatBreed
 import com.example.catapp.data.CatBreedMapper.toCatBreedEntity
 import com.example.catapp.data.CatBreedMapper.toCatBreedEntityList
@@ -93,10 +92,18 @@ class CatBreedRepositoryImpl @Inject constructor(
         try {
             val apiBreeds = apiService.getCatBreeds()
             val domainBreeds = apiBreeds.toCatBreedList()
-            val entities = domainBreeds.toCatBreedEntityList()
+            val breedsWithImages = domainBreeds.map { breed ->
+                getBreedImage(breed)
+            }
+            val entities = breedsWithImages.toCatBreedEntityList()
             catBreedDao.insertCatBreeds(entities)
         } catch (e: Exception) {
             throw e
         }
+    }
+
+    override fun getAllCatBreedsFlow(): Flow<List<CatBreed>> {
+        return catBreedDao.getAllCatBreedsFlow()
+            .map { entities -> entities.toCatBreedListFromEntities() }
     }
 }

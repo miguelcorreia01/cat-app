@@ -7,8 +7,11 @@ import com.example.catapp.domain.model.CatBreedsUiState
 import com.example.catapp.domain.repository.CatBreedRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,55 +24,50 @@ class BreedListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CatBreedsUiState())
     val uiState: StateFlow<CatBreedsUiState> = _uiState.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
+    private val breeds = repository.getAllCatBreedsFlow()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    val filteredBreeds = combine(breeds, searchQuery) { breedsList, query ->
+        if (query.isBlank()) {
+            breedsList
+        } else {
+            breedsList.filter { breed ->
+                breed.name.contains(query, ignoreCase = true)
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
     init {
         loadCatBreeds()
     }
 
     private fun loadCatBreeds() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _isLoading.value = true
+            _error.value = null
 
             try {
-                val breeds = repository.getCatBreeds()
-                _uiState.update {
-                    it.copy(
-                        breeds = breeds,
-                        filteredBreeds = breeds,
-                        isLoading = false,
-                        error = null
-                    )
-                }
+                repository.refreshCatBreeds()
+                _isLoading.value = false
             } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = e.message ?: "Error loading breeds"
-                    )
-                }
+                _error.value = e.message ?: "Unknown error occurred"
+                _isLoading.value = false
             }
         }
     }
 
+
     fun searchBreeds(query: String) {
-        _uiState.update { it.copy(searchQuery = query) }
-
-        if (query.isBlank()) {
-            _uiState.update { it.copy(filteredBreeds = it.breeds) }
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                val searchResults = repository.searchCatBreeds(query)
-                _uiState.update { it.copy(filteredBreeds = searchResults) }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        error = e.message ?: "Search failed"
-                    )
-                }
-            }
-        }
+        _searchQuery.value = query
     }
 
     fun toggleFavorite(breed: CatBreed) {
@@ -80,8 +78,6 @@ class BreedListViewModel @Inject constructor(
                 } else {
                     repository.addCatBreedToFavorites(breed)
                 }
-                updateBreedInList(breed.copy(isFavorite = !breed.isFavorite))
-
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
@@ -92,19 +88,4 @@ class BreedListViewModel @Inject constructor(
         }
     }
 
-    private fun updateBreedInList(updatedBreed: CatBreed) {
-        _uiState.update { currentState ->
-            val updatedBreeds = currentState.breeds.map { breed ->
-                if (breed.id == updatedBreed.id) updatedBreed else breed
-            }
-
-            val updatedFilteredBreeds = currentState.filteredBreeds.map { breed ->
-                if (breed.id == updatedBreed.id) updatedBreed else breed
-            }
-            currentState.copy(
-                breeds = updatedBreeds,
-                filteredBreeds = updatedFilteredBreeds
-            )
-        }
-    }
 }

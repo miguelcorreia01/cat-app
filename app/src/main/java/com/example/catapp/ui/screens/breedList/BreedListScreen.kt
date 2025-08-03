@@ -23,22 +23,23 @@ fun BreedListScreen(
     viewModel: BreedListViewModel = hiltViewModel(),
     onBreedClick: (String) -> Unit = {}
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    var snackbarMessage by remember { mutableStateOf("") }
+    val breeds by viewModel.filteredBreeds.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
 
+    val snackBarHostState = remember { SnackbarHostState() }
+    var snackBarMessage by remember { mutableStateOf("") }
 
-
-    LaunchedEffect(snackbarMessage) {
-        if (snackbarMessage.isNotEmpty()) {
-            snackbarHostState.showSnackbar(snackbarMessage)
-            snackbarMessage = ""
+    LaunchedEffect(snackBarMessage) {
+        if (snackBarMessage.isNotEmpty()) {
+            snackBarHostState.showSnackbar(snackBarMessage)
+            snackBarMessage = ""
         }
     }
 
     Scaffold(
         containerColor = Color.White,
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -49,7 +50,7 @@ fun BreedListScreen(
             HeaderSection()
 
             SearchBar(
-                query = uiState.searchQuery,
+                query = searchQuery,
                 onQueryChange = { viewModel.searchBreeds(it) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -57,17 +58,19 @@ fun BreedListScreen(
             )
 
             when {
-                uiState.isLoading -> {
+                isLoading -> {
                     LoadingScreen()
                 }
                 else -> {
                     BreedGrid(
-                        breeds = uiState.filteredBreeds,
+                        breeds = breeds,
                         onBreedClick = onBreedClick,
                         onToggleFavorite = { breed ->
                             viewModel.toggleFavorite(breed)
-                            if (!breed.isFavorite) {
-                                snackbarMessage = "${breed.name} added to favorites"
+                            snackBarMessage = if (!breed.isFavorite) {
+                                "${breed.name} added to favorites"
+                            } else {
+                                "${breed.name} removed from favorites"
                             }
                         }
                     )
@@ -130,6 +133,9 @@ fun LoadingScreen() {
         CircularProgressIndicator(color = Color.Gray)
     }
 }
+
+
+
 
 
 

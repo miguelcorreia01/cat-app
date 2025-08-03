@@ -11,5 +11,6 @@ interface CatBreedRepository {
     suspend fun removeCatBreedFromFavorites(catBreed: CatBreed)
     suspend fun searchCatBreeds(query: String): List<CatBreed>
     suspend fun refreshCatBreeds()
+    fun getAllCatBreedsFlow(): Flow<List<CatBreed>>
 
 }
