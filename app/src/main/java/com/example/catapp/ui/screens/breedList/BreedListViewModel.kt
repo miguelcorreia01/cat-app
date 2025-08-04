@@ -47,7 +47,16 @@ class BreedListViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     init {
-        loadCatBreeds()
+        loadCatBreedsIfNeeded()
+    }
+
+    private fun loadCatBreedsIfNeeded() {
+        viewModelScope.launch {
+            val currentBreeds = breeds.value
+            if (currentBreeds.isEmpty()) {
+                loadCatBreeds()
+            }
+        }
     }
 
     private fun loadCatBreeds() {
@@ -56,7 +65,7 @@ class BreedListViewModel @Inject constructor(
             _error.value = null
 
             try {
-                repository.refreshCatBreeds()
+                repository.getCatBreeds()
                 _isLoading.value = false
             } catch (e: Exception) {
                 _error.value = e.message ?: "Unknown error occurred"

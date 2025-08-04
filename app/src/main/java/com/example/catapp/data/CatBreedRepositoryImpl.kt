@@ -35,6 +35,11 @@ class CatBreedRepositoryImpl @Inject constructor(
 
     override suspend fun getCatBreeds(): List<CatBreed> {
         return try {
+            val localEntities = catBreedDao.getAllCatBreeds()
+            if (localEntities.isNotEmpty()) {
+                return localEntities.toCatBreedListFromEntities()
+            }
+
             val apiBreeds = apiService.getCatBreeds()
             val domainBreeds = apiBreeds.toCatBreedList()
 
@@ -60,10 +65,12 @@ class CatBreedRepositoryImpl @Inject constructor(
             val breed = domainBreeds.find { it.id == id }
 
             breed?.let {
-                catBreedDao.insertCatBreeds(listOf(it.toCatBreedEntity()))
-            }
+                val breedWithImage = getBreedImage(it)
+                catBreedDao.insertCatBreeds(listOf(breedWithImage.toCatBreedEntity()))
 
-            breed ?: throw Exception("Breed not found")
+                breedWithImage
+            }
+             ?: throw Exception("Breed not found")
         }
     }
 
@@ -92,8 +99,15 @@ class CatBreedRepositoryImpl @Inject constructor(
         try {
             val apiBreeds = apiService.getCatBreeds()
             val domainBreeds = apiBreeds.toCatBreedList()
+            val currentFavorites = catBreedDao.getFavoriteCatBreeds()
+            val favoriteIds = currentFavorites.map { it.id }.toSet()
             val breedsWithImages = domainBreeds.map { breed ->
-                getBreedImage(breed)
+                val breedWithImage = getBreedImage(breed)
+                if (favoriteIds.contains(breed.id)) {
+                    breedWithImage.copy(isFavorite = true)
+                } else {
+                    breedWithImage
+                }
             }
             val entities = breedsWithImages.toCatBreedEntityList()
             catBreedDao.insertCatBreeds(entities)
