@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -96,7 +97,7 @@ fun HeaderSection() {
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "Discover cat breeds and save them",
+            text = "Discover cat breeds and save them!",
             fontSize = 14.sp,
             color = Color.Gray,
             textAlign = TextAlign.Center
@@ -113,10 +114,11 @@ fun SearchBar(
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-        placeholder = { Text("Search breeds...") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.Gray) },
+        placeholder = { Text("Search breeds..." , color = Color.Gray) },
         singleLine = true,
         modifier = modifier,
+        textStyle = TextStyle(color = Color.Gray),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color.DarkGray,
             unfocusedBorderColor = Color.Gray

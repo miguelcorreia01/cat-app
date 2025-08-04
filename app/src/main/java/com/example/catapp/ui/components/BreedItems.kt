@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -44,7 +44,7 @@ fun BreedGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(40.dp)
     ) {
         items(breeds) { breed ->
             BreedGridItem(
@@ -68,7 +68,6 @@ fun BreedGridItem(
             .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box {
             if (breed.image?.isNotEmpty() == true) {
                 AsyncImage(
                     model = breed.image,
@@ -80,29 +79,34 @@ fun BreedGridItem(
                 PlaceholderImage()
             }
 
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+        Text(
+            text = breed.name,
+            fontSize = 14.sp,
+            color = Color.DarkGray,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
+        )
             IconButton(
                 onClick = { onToggleFavorite() },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(4.dp)
+                modifier = Modifier.size(24.dp)
             ) {
                 Icon(
                     imageVector = if (breed.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = if (breed.isFavorite) "Unmark as favorite" else "Mark as favorite",
-                    tint = if (breed.isFavorite) Color(0xFFFF6B6B) else Color.White,
+                    tint = if (breed.isFavorite) Color(0xFFFF6B6B) else Color.DarkGray,
                     modifier = Modifier.size(24.dp)
                 )
             }
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = breed.name,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }
 

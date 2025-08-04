@@ -16,11 +16,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.example.catapp.domain.model.CatBreed
 import com.example.catapp.ui.screens.breedList.LoadingScreen
 
 @Composable
@@ -54,7 +56,7 @@ fun BreedDetailScreen(
 
 @Composable
 fun BreedDetailContent(
-    breed: com.example.catapp.domain.model.CatBreed,
+    breed: CatBreed,
     onToggleFavorite: () -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -74,7 +76,22 @@ fun BreedDetailContent(
                     tint = Color.Black
                 )
             }
-            Spacer(modifier = Modifier.weight(1f))
+
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = breed.name,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
             IconButton(
                 onClick = onToggleFavorite,
                 modifier = Modifier.size(40.dp)
@@ -83,20 +100,10 @@ fun BreedDetailContent(
                     imageVector = if (breed.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = if (breed.isFavorite) "Unmark as favorite" else "Mark as favorite",
                     tint = if (breed.isFavorite) Color(0xFFFF6B6B) else Color.Black,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(32.dp)
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = breed.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
 
         Spacer(modifier = Modifier.height(8.dp))
         Box(
