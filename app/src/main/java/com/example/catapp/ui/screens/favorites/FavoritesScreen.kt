@@ -7,10 +7,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,31 +29,46 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.catapp.ui.components.BreedGrid
 
 @Composable
-fun FavoritesScreen (
+fun FavoritesScreen(
     viewModel: FavoritesViewModel = hiltViewModel(),
     onBreedClick: (String) -> Unit = {}
-){
+) {
     val favorites by viewModel.favorites.collectAsState()
     val averageLifeSpan = viewModel.calculateAverageLifeSpan()
+    val snackBarHostState = remember { SnackbarHostState() }
+    var snackBarMessage by remember { mutableStateOf("") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ){
-        FavoritesHeader(averageLifeSpan = averageLifeSpan)
-
-        if(favorites.isEmpty()) {
-            EmptyFavoritesScreen()
-        } else {
-            BreedGrid(
-                breeds = favorites,
-                onBreedClick = onBreedClick,
-                onToggleFavorite = {viewModel.removeFromFavorites(it)
-                }
-            )
+    LaunchedEffect(snackBarMessage) {
+        if (snackBarMessage.isNotEmpty()) {
+            snackBarHostState.showSnackbar(snackBarMessage)
+            snackBarMessage = ""
         }
+    }
 
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackBarHostState) }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(paddingValues)
+        ) {
+            FavoritesHeader(averageLifeSpan = averageLifeSpan)
+
+            if (favorites.isEmpty()) {
+                EmptyFavoritesScreen()
+            } else {
+                BreedGrid(
+                    breeds = favorites,
+                    onBreedClick = onBreedClick,
+                    onToggleFavorite = {
+                        viewModel.removeFromFavorites(it)
+                        snackBarMessage = "${it.name} removed from favorites"
+                    }
+                )
+            }
+        }
     }
 }
 
