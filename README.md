@@ -27,6 +27,8 @@ This project demonstrates Clean Architecture principles and modern Android devel
 - Retrofit
 - Room
 
+---
+
  ## Features
   **Cat Breeds Discovery**: Browse through a comprehensive list of cat breeds
 - **Search Functionality**: Real-time search through breed names
