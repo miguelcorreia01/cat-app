@@ -8,7 +8,7 @@ interface CatApiService {
     @GET("breeds")
     suspend fun getCatBreeds(): List<CatBreedDto>
 
-    @GET("images/{ImageId}")
+    @GET("images/{imageId}")
     suspend fun getImageById(@Path("imageId") imageId: String): ImageDto
 
 }

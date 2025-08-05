@@ -67,9 +67,23 @@ fun BreedListScreen(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            when {
-                breedsPaging.loadState.refresh is LoadState.Loading -> {
+            when (breedsPaging.loadState.refresh) {
+                is LoadState.Loading -> {
                     LoadingScreen()
+                }
+
+                is LoadState.Error -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Error loading breeds",
+                            color = Color.Red,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
 
                 else -> {
