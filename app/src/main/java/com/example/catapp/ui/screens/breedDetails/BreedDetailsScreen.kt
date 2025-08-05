@@ -32,36 +32,69 @@ fun BreedDetailScreen(
 ) {
     val breed by viewModel.breed.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val snackBarHostState = remember { SnackbarHostState() }
+    var snackBarMessage by remember { mutableStateOf("") }
 
-    when {
-        isLoading -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                LoadingScreen()
+    LaunchedEffect(snackBarMessage) {
+        if (snackBarMessage.isNotEmpty()) {
+            snackBarHostState.showSnackbar(snackBarMessage)
+            snackBarMessage = ""
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackBarHostState) }
+    ) { paddingValues ->
+        when {
+            isLoading -> {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingScreen()
+                }
             }
-        }
-        breed != null -> {
-            BreedDetailContent(
-                breed = breed!!,
-                onToggleFavorite = { viewModel.toggleFavorite() },
-                onBackClick = onBackClick
-            )
-        }
-        else -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("No breed found.", color = Color.Gray)
+            breed != null -> {
+                BreedDetailContent(
+                    breed = breed!!,
+                    onToggleFavorite = {
+                        viewModel.toggleFavorite()
+                        snackBarMessage = if (!breed!!.isFavorite) {
+                            "${breed!!.name} added to favorites"
+                        } else {
+                            "${breed!!.name} removed from favorites"
+                        }
+                    },
+                    onBackClick = onBackClick,
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
+            else -> {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No breed found.", color = Color.Gray)
+                }
             }
         }
     }
 }
 
+
 @Composable
 fun BreedDetailContent(
     breed: CatBreed,
     onToggleFavorite: () -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.White)
             .padding(16.dp)
@@ -71,7 +104,9 @@ fun BreedDetailContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBackClick) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back",
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
                     modifier = Modifier.size(24.dp),
                     tint = Color.Black
                 )
@@ -119,7 +154,7 @@ fun BreedDetailContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(220.dp),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Fit
                 )
             } else {
                 Box(
@@ -135,7 +170,6 @@ fun BreedDetailContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
 
         Text(
             text = buildAnnotatedString {

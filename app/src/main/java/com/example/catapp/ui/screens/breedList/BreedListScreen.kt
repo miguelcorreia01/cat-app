@@ -1,5 +1,10 @@
 package com.example.catapp.ui.screens.breedList
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -15,21 +20,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.catapp.ui.components.BreedGrid
-
-
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.LoadState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
+import com.example.catapp.ui.components.BreedGridItem
 
 @Composable
 fun BreedListScreen(
     viewModel: BreedListViewModel = hiltViewModel(),
     onBreedClick: (String) -> Unit = {}
 ) {
-    val breeds by viewModel.filteredBreeds.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val breedsPaging = viewModel.breedsPaging.collectAsLazyPagingItems()
     val searchQuery by viewModel.searchQuery.collectAsState()
-
     val snackBarHostState = remember { SnackbarHostState() }
     var snackBarMessage by remember { mutableStateOf("") }
+    val lazyGridState = rememberLazyGridState()
 
     LaunchedEffect(snackBarMessage) {
         if (snackBarMessage.isNotEmpty()) {
@@ -49,7 +59,6 @@ fun BreedListScreen(
                 .padding(paddingValues)
         ) {
             HeaderSection()
-
             SearchBar(
                 query = searchQuery,
                 onQueryChange = { viewModel.searchBreeds(it) },
@@ -59,27 +68,64 @@ fun BreedListScreen(
             )
 
             when {
-                isLoading -> {
+                breedsPaging.loadState.refresh is LoadState.Loading -> {
                     LoadingScreen()
                 }
+
                 else -> {
-                    BreedGrid(
-                        breeds = breeds,
-                        onBreedClick = onBreedClick,
-                        onToggleFavorite = { breed ->
-                            viewModel.toggleFavorite(breed)
-                            snackBarMessage = if (!breed.isFavorite) {
-                                "${breed.name} added to favorites"
-                            } else {
-                                "${breed.name} removed from favorites"
+                    LazyVerticalGrid(
+                        state = lazyGridState,
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            count = breedsPaging.itemCount,
+                            key = { index -> breedsPaging[index]?.id ?: index }
+                        ) { index ->
+                            val breed = breedsPaging[index]
+                            if (breed != null) {
+                                AnimatedVisibility(
+                                    visible = true,
+                                    enter = fadeIn() + slideInVertically(),
+                                    exit = fadeOut() + slideOutVertically()
+                                ) {
+                                    BreedGridItem(
+                                        breed = breed,
+                                        onClick = { onBreedClick(breed.id) },
+                                        onToggleFavorite = {
+                                            viewModel.toggleFavorite(breed)
+                                            snackBarMessage = if (!breed.isFavorite) {
+                                                "${breed.name} added to favorites"
+                                            } else {
+                                                "${breed.name} removed from favorites"
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         }
-                    )
+                        if (breedsPaging.loadState.append is LoadState.Loading) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun HeaderSection() {
@@ -135,9 +181,3 @@ fun LoadingScreen() {
         CircularProgressIndicator(color = Color.Gray)
     }
 }
-
-
-
-
-
-

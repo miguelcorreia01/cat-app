@@ -73,7 +73,7 @@ fun BreedGridItem(
                     model = breed.image,
                     contentDescription = breed.name,
                     modifier = Modifier.size(120.dp),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                 )
             } else {
                 PlaceholderImage()
