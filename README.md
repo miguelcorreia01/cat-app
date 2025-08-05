@@ -7,9 +7,10 @@ This project demonstrates Clean Architecture principles and modern Android devel
 
 ## Index
 
-1. [Features](#-features)
-2. [Architecture](#-architecture)
-3. [Development Strategies](#-development-strategies)
+1. [Tech Stack](#-tech-stack)
+2. [Features](#-features)
+3. [Architecture](#-architecture)
+4. [Development Strategies](#-development-strategies)
    - [1. Dependency Injection](#1-dependency-injection)
    - [2. Architecture Decisions](#2-architecture-decisions)
    - [3. Data Management Strategy](#3-data-management-strategy)
