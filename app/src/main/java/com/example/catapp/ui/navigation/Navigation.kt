@@ -37,14 +37,12 @@ fun Navigation() {
                     selectedTab = tab
                     when (tab) {
                         "Breeds" -> {
-                            // Clear the entire back stack and navigate to breeds
                             navController.navigate(Screen.Breeds.route) {
                                 popUpTo(0) { inclusive = true }
                                 launchSingleTop = true
                             }
                         }
                         "Favorites" -> {
-                            // Clear the entire back stack and navigate to favorites
                             navController.navigate(Screen.Favorites.route) {
                                 popUpTo(0) { inclusive = true }
                                 launchSingleTop = true
