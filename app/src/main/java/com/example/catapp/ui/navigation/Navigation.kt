@@ -36,19 +36,19 @@ fun Navigation() {
                 onTabSelected = { tab ->
                     selectedTab = tab
                     when (tab) {
-                        "Breeds" -> navController.navigate(Screen.Breeds.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
+                        "Breeds" -> {
+                            // Clear the entire back stack and navigate to breeds
+                            navController.navigate(Screen.Breeds.route) {
+                                popUpTo(0) { inclusive = true }
+                                launchSingleTop = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
                         }
-                        "Favorites" -> navController.navigate(Screen.Favorites.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
+                        "Favorites" -> {
+                            // Clear the entire back stack and navigate to favorites
+                            navController.navigate(Screen.Favorites.route) {
+                                popUpTo(0) { inclusive = true }
+                                launchSingleTop = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
                         }
                     }
                 }
