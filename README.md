@@ -5,7 +5,7 @@ This project demonstrates Clean Architecture principles and modern Android devel
 
 ---
 
-## 📚 Index
+## Index
 
 1. [Features](#-features)
 2. [Architecture](#-architecture)
