@@ -1,5 +1,6 @@
 package com.example.catapp.data.local
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -37,6 +38,12 @@ interface CatBreedDao {
 
     @Query("SELECT * FROM cat_breeds WHERE isFavorite = 1")
     fun getFavoriteCatBreedsFlow(): Flow<List<CatBreedEntity>>
+
+    @Query("SELECT * FROM cat_breeds ORDER BY name ASC")
+    fun pagingSource(): PagingSource<Int, CatBreedEntity>
+
+    @Query("SELECT * FROM cat_breeds WHERE name LIKE :searchQuery || '%' ORDER BY name ASC")
+    fun searchPagingSource(searchQuery: String): PagingSource<Int, CatBreedEntity>
 
 
 

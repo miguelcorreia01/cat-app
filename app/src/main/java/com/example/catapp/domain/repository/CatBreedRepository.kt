@@ -1,5 +1,6 @@
 package com.example.catapp.domain.repository
 
+import androidx.paging.PagingData
 import com.example.catapp.domain.model.CatBreed
 import kotlinx.coroutines.flow.Flow
 
@@ -11,6 +12,8 @@ interface CatBreedRepository {
     suspend fun removeCatBreedFromFavorites(catBreed: CatBreed)
     suspend fun searchCatBreeds(query: String): List<CatBreed>
     suspend fun refreshCatBreeds()
+    fun getCatBreedsPaging(): Flow<PagingData<CatBreed>>
+    fun getCatBreedsPagingWithSearch(searchQuery: String): Flow<PagingData<CatBreed>>
     fun getAllCatBreedsFlow(): Flow<List<CatBreed>>
 
 }

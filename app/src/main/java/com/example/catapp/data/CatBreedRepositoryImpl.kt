@@ -1,5 +1,8 @@
 package com.example.catapp.data
 
+import androidx.paging.Pager
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.example.catapp.data.CatBreedMapper.toCatBreed
 import com.example.catapp.data.CatBreedMapper.toCatBreedEntity
 import com.example.catapp.data.CatBreedMapper.toCatBreedEntityList
@@ -12,6 +15,7 @@ import com.example.catapp.domain.repository.CatBreedRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import androidx.paging.PagingConfig
 
 
 class CatBreedRepositoryImpl @Inject constructor(
@@ -120,4 +124,30 @@ class CatBreedRepositoryImpl @Inject constructor(
         return catBreedDao.getAllCatBreedsFlow()
             .map { entities -> entities.toCatBreedListFromEntities() }
     }
+
+    override fun getCatBreedsPaging(): Flow<PagingData<CatBreed>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                enablePlaceholders = false,
+                prefetchDistance = 2
+            ),
+            pagingSourceFactory = { catBreedDao.pagingSource() }
+        ).flow.map { pagingData ->
+            pagingData.map { entity -> entity.toCatBreed() }
+        }
+    }
+    override fun getCatBreedsPagingWithSearch(searchQuery: String): Flow<PagingData<CatBreed>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 50,
+                enablePlaceholders = false,
+                prefetchDistance = 2
+            ),
+            pagingSourceFactory = { catBreedDao.searchPagingSource(searchQuery) }
+        ).flow.map { pagingData ->
+            pagingData.map { entity -> entity.toCatBreed() }
+        }
+    }
 }
+
