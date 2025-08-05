@@ -13,11 +13,8 @@ This project demonstrates Clean Architecture principles and modern Android devel
    - [1. Dependency Injection](#1-dependency-injection)
    - [2. Architecture Decisions](#2-architecture-decisions)
    - [3. Data Management Strategy](#3-data-management-strategy)
-   - [4. UI/UX Design Decisions](#5-uiux-design-decisions)
-   - [5. Performance Optimizations](#6-performance-optimizations)
-4. [Testing Strategy](#-testing-strategy)
-5. [Tech Stack](#-tech-stack)
-6. [Notes](#-notes)
+   - [4. UI/UX Design Decisions](#4-uiux-design-decisions)
+   - [5. Performance Optimizations](#5-performance-optimizations)
 
 ---
 
